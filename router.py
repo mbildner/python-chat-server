@@ -12,7 +12,7 @@ sockets = Sockets(app)
 app.debug = True
 app.reload = True
 
-@before_requests
+@app.before_requests
 def before():
 	g.r = redis.StrictRedis(host="localhost", port=6379, db=0)
 
