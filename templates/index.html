@@ -12,7 +12,7 @@
 	<button onclick="sendMessage();">Send that shit yo</button>
 
 	<script>
-		var domain = document.location.domain;
+		var domain = document.domain;
 		var ws = new WebSocket('ws://' + domain + '/chatsocket');
 		// var ws = new WebSocket('ws://127.0.0.1:/chatsocket');
 
