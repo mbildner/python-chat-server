@@ -12,10 +12,6 @@ sockets = Sockets(app)
 app.debug = True
 app.reload = True
 
-@app.before_requests
-def before():
-	g.r = redis.StrictRedis(host="localhost", port=6379, db=0)
-
 
 @app.route('/')
 def home():
@@ -25,11 +21,12 @@ def home():
 
 @sockets.route('/chatsocket')
 def chatsocket(ws):
+	r = redis.StrictRedis(host="localhost", port=6379, db=0)
 	while True:
 		message = ws.receive()
-		g.r.rpush('messages', str(message))
+		r.rpush('messages', str(message))
 
-		messages = g.r.lrange('messages', 0, -1)
+		messages = r.lrange('messages', 0, -1)
 		for message in messages:
 			ws.send(message)
 
