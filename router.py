@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, before_requests
+from flask import Flask, render_template, g
 from flask_sockets import Sockets
 
 import redis
