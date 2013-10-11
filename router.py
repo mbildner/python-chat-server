@@ -19,21 +19,16 @@ def home():
 	return resp
 
 
+
 @sockets.route('/chatsocket')
 def chatsocket(ws):
 	while True:
 		message = ws.receive()
 
-		with open('chatdb.txt', 'a') as db:
-			entry = message + '\n'
-			db.write(entry)
-
-		with open('chatdb.txt', 'r') as db:
-			reply = ''.join([line for line in db])
-
+		reply = "received: %r" %(message)
 		ws.send(reply)
 
 
 if __name__ == "__main__":
-	app.run(port=8181)
+	app.run()
 
