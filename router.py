@@ -10,8 +10,8 @@ app = Flask(__name__)
 sockets = Sockets(app)
 
 
-app.debug = True
-app.reload = True
+#app.debug = True
+#app.reload = True
 
 def redis_to_ws(r, ws):
 	client = r.pubsub()
