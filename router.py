@@ -23,6 +23,8 @@ def redis_to_ws(r, ws):
 
 def ws_to_redis(r, ws):
 	message = ws.receive()
+	if message is None:
+		return
 	r.publish("msg_channel", message)
 	gevent.spawn(ws_to_redis, r, ws)
 
