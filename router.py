@@ -34,6 +34,12 @@ def home():
 	return resp
 
 
+@app.route('/animationdemo')
+def demo():
+	resp = render_template('animationdemo.html')
+	return resp
+
+
 @sockets.route('/chatsocket')
 def chatsocket(ws):
 	r = redis.StrictRedis(host="localhost", port=6379, db=0)
