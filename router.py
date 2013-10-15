@@ -34,9 +34,9 @@ def home():
 	return resp
 
 
-@app.route('/animationdemo')
+@app.route('/snake')
 def demo():
-	resp = render_template('animationdemo.html')
+	resp = render_template('snake.html')
 	return resp
 
 
