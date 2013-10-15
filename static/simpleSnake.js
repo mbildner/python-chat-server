@@ -1,10 +1,3 @@
-var ws = new WebSocket('ws://' + domain + '/chatsocket');
-
-ws.send("snake page connected");
-
-
-
-
 var GridBox = function(row, col, width, height){
 	this.row = row;
 	this.col = col;
