@@ -225,7 +225,11 @@ var SnakeModel = function(canvas, snakeLength){
 })(this)
 
 
+
+
 var gameLoop = function(){
+	console.log('step');
+
 	snake.move(snake.direction);
 	snake.head = snake.body[0];
 	snake.setBodyColideable();
