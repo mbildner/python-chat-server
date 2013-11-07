@@ -318,9 +318,7 @@ var SnakeModel = function(canvas, snakeLength){
 		}
 	});
 	
-})(this);
-
-
+})();
 
 window.outsideSnakes = {};
 
@@ -397,18 +395,18 @@ var gameLoop = function(){
 
 var gameState = "dead";
 var gameHandle;
-
+var speed;
 
 var newGame = function () {
 	var speedInput = document.getElementById('speedInput');
-	var speed = speedInput.value;
+	speed = speedInput.value;
 	window.snake = new SnakeModel(canvas, 10);
 	console.log(window.snake);
-	startGame(speed);
+	startGame();
 }
 
-var startGame = function (gameSpeed) {
-	var gameLoopHandle = window.setInterval(gameLoop, gameSpeed);
+var startGame = function () {
+	var gameLoopHandle = window.setInterval(gameLoop, speed);
 	gameState = "running";
 	toggleGameButton.innerHTML = "Pause";
 	gameHandle = gameLoopHandle;
@@ -425,7 +423,6 @@ var endGame = function () {
 	pauseGame();
 	toggleGameButton.innerHTML = "Start over";
 	toggleGameButton.focus();
-
 	gameState = "dead";
 }
 
