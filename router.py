@@ -1,9 +1,8 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request, make_response
 from flask_sockets import Sockets
 import gevent
 
 import redis
-
 
 
 app = Flask(__name__)
@@ -13,6 +12,8 @@ sockets = Sockets(app)
 #app.debug = True
 #app.reload = True
 
+
+
 def redis_to_ws(r, ws):
 	client = r.pubsub()
 	client.subscribe("msg_channel")
@@ -20,6 +21,7 @@ def redis_to_ws(r, ws):
 		if msg['type'] == 'subscribe':
 			continue
 		ws.send(msg['data'])
+
 
 def ws_to_redis(r, ws):
 	message = ws.receive()
@@ -29,14 +31,11 @@ def ws_to_redis(r, ws):
 	gevent.spawn(ws_to_redis, r, ws)
 
 
-
-@app.route('/test')
-def test():
-	return "working"
-
-@app.route('/')
+@app.route('/', methods=["GET"])
 def home():
-	resp = render_template('index.html')
+	ip_address = str(request.remote_addr)
+	resp = make_response(render_template('index.html'))
+	resp.set_cookie('ip_address', ip_address)
 	return resp
 
 
@@ -44,7 +43,6 @@ def home():
 def demo():
 	resp = render_template('snake.html')
 	return resp
-
 
 
 def incoming_snake_update(r, ws):

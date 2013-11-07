@@ -5,19 +5,28 @@
 <body>
 	<h1>Hello world</h1>
 
-	<ul id="messageList"></ul>
 
 	<p>Send a message</p>
 	<input id="messageInput" type="text"></input>
-	<button onclick="sendMessage();">Send that shit yo</button>
+	<button id="sendMessageButton">Send</button>
 
+	<ul id="messageList"></ul>
+	
+	
 	<script>
-		var domain = document.domain;
-		var ws = new WebSocket('ws://' + domain + '/chatsocket');
-		// var ws = new WebSocket('ws://127.0.0.1:/chatsocket');
+		var wsEndpoint = "/chatsocket";
+
+		var origin = document.location.origin;
+
+		var wsUrl = "ws" + origin.substring(4) + wsEndpoint;
+
+
+
+		var ws = new WebSocket(wsUrl);
+
+		var messageInput = document.getElementById('messageInput');
 
 		var sendMessage = function(){
-			var messageInput = document.getElementById('messageInput');
 			var message = messageInput.value;
 			messageInput.value = '';
 
@@ -37,6 +46,16 @@
 			messageList.appendChild(messageNode);
 		};
 
+		var button = document.getElementById('sendMessageButton');
+
+		button.addEventListener('click', sendMessage);
+
+		messageInput.addEventListener('keydown', function (key) {
+			// enter key.which is 13
+			if (key.which === 13){
+				sendMessage();
+			}
+		});
 
 	</script>
 
