@@ -404,7 +404,6 @@ var newGame = function () {
 	var speed = speedInput.value;
 	window.snake = new SnakeModel(canvas, 10);
 	console.log(window.snake);
-	toggleGameButton.blur();
 	startGame(speed);
 }
 
