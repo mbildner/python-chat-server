@@ -331,6 +331,9 @@ var clearBoard = function () {
 
 
 var gameLoop = function(){
+	// reinstate the snake
+	snake.setBodyColideable();
+	snake.collisionCheck();
 	// clear the board
 	clearBoard();
 
@@ -344,9 +347,6 @@ var gameLoop = function(){
 	snake.move(snake.direction);
 	snake.head = snake.body[0];
 
-	// reinstate the snake
-	snake.setBodyColideable();
-	snake.collisionCheck();
 
 	// render the snake
 	snake.render("lime");
@@ -371,7 +371,7 @@ var gameLoop = function(){
 		var fsnake = outsideSnakes[s];
 
 		fsnake.forEach(function (box) {
-			var box = gridModel.grid[box.row][box.col]
+			var box = gridModel.grid[box.row][box.col];
 			box.collideable = true;
 			box.render("orange");
 		});
