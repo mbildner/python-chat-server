@@ -147,6 +147,7 @@ var SnakeModel = function(canvas, snakeLength){
 				newFood.food = true;
 				newFood.render("blue");
 				gridModel.foodBlock = newFood;
+
 			} else {
 				// broadcast death to other players
 				// should build a wrapped function to only ws.send when ws.readyState === 1
@@ -257,8 +258,10 @@ var SnakeModel = function(canvas, snakeLength){
 		if (update.id != browserId && update.snake) {
 			// this is about someone else's snake, and that snake is alive
 			outsideSnakes[update.id] = update.snake;
-		} else if (typeof(update.snake)==="undefined") {
+
+		} else if (update.snake==="death") {
 			console.log("snake death: ", update.id);
+			delete outsideSnakes[update.id];
 		}
 	}
 
