@@ -176,16 +176,16 @@ var SnakeModel = function(canvas, snakeLength){
 				gridModel.foodBlock = newFood;
 
 			} else {
-				// broadcast death to other players
 				// should build a wrapped function to only ws.send when ws.readyState === 1
 				var obit = JSON.stringify({
 					id: browserId
 				});
 
 				// kill the snake, it hit something it shouldn't
-				window.clearInterval(gameLoopHandle);
+				// window.clearInterval(gameHandle);
+				endGame();
 
-				alert("Game over, thanks for playing.");
+				// alert("Game over, thanks for playing.");
 
 			}
 		}
@@ -222,15 +222,6 @@ var SnakeModel = function(canvas, snakeLength){
 		tailBox.collideable = false;
 		tailBox.erase();
 
-
-		// var directionsDict = {
-		// 	"Left": {"col": -1, "row":0},
-		// 	"Right":{"col": 1, "row":0},
-		// 	"Up": {"col": 0, "row":-1},
-		// 	"Down": {"col": 0, "row":1}
-		// }
-
-		// Hack to get around weird grid inversion
 
 		var directionsDict = {
 			"Up": {"col": -1, "row":0},
@@ -287,7 +278,6 @@ var SnakeModel = function(canvas, snakeLength){
 
 		} else if (typeof(update.snake)==="undefined") {
 			// no update was sent, the snake is dead.
-			console.log("snake death: ", update.id);
 			delete outsideSnakes[update.id];
 		}
 	}
@@ -315,8 +305,6 @@ var SnakeModel = function(canvas, snakeLength){
 	document.addEventListener("keydown", function(keyPress){
 
 		// keyidentifier should be "Up Down Right Left", mozilla doesn't implement it, so we'll do it ourselves
-
-
 		keyPress.keyIdentifier = keyDict[keyPress.which];
 
 		if (keyPress.keyIdentifier in snake.directionsDict){
@@ -335,8 +323,6 @@ var SnakeModel = function(canvas, snakeLength){
 
 
 window.outsideSnakes = {};
-
-
 
 var clearBoard = function () {
 	// clears the board visually AND clears all collision boxes
@@ -408,4 +394,55 @@ var gameLoop = function(){
 	}
 }
 
-var gameLoopHandle = window.setInterval(gameLoop, 80);
+
+var gameState = "dead";
+var gameHandle;
+
+
+var newGame = function () {
+	var speedInput = document.getElementById('speedInput');
+	var speed = speedInput.value;
+	window.snake = new SnakeModel(canvas, 10);
+	console.log(window.snake);
+	toggleGameButton.blur();
+	startGame(speed);
+}
+
+var startGame = function (gameSpeed) {
+	var gameLoopHandle = window.setInterval(gameLoop, gameSpeed);
+	gameState = "running";
+	toggleGameButton.innerHTML = "Pause";
+	gameHandle = gameLoopHandle;
+}
+
+var pauseGame = function() {
+	window.clearInterval(gameHandle);
+	toggleGameButton.innerHTML = "Unpause";
+	toggleGameButton.focus();
+	gameState = "paused";
+}
+
+var endGame = function () {
+	pauseGame();
+	toggleGameButton.innerHTML = "Start over";
+	toggleGameButton.focus();
+
+	gameState = "dead";
+}
+
+var toggleGameButton = document.getElementById('toggleGameButton');
+
+toggleGameButton.height = 100;
+toggleGameButton.width = 100;
+
+toggleGameButton.innerHTML = "Start";
+toggleGameButton.focus();
+
+toggleGameButton.addEventListener('click', function () {
+	var funcs = {
+		"dead"   : newGame,
+		"paused" : startGame,
+		"running": pauseGame
+	};
+	funcs[gameState]();
+});
