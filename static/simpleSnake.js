@@ -80,7 +80,22 @@ var GridModel = function(canvas, rows, cols){
 		});		
 	}
 
+	var row_is_safe = function (rowNumber) {
+		var row = gridModel.grid[rowNumber];
 
+		var edgelessRow = row.slice(1, row.length-2);
+
+		var collideable = edgelessRow.some(function (box) {
+			return box.collideable;
+		});
+
+		var safe = !(collideable);
+
+		return safe;
+	}
+
+
+	this.row_is_safe = row_is_safe;
 
 	// set a block to have food, make it collideable, and render it blue
 
@@ -95,12 +110,35 @@ var GridModel = function(canvas, rows, cols){
 
 
 
+
 var SnakeModel = function(canvas, snakeLength){
-	// this.body = [];
 	
-	// for (var bodyBlock=0; bodyBlock<snakeLength; bodyBlock++){
-	// 	this.body.push({});
-	// }
+
+	var randomSnake = function () {
+		// for now, body is mostly predefined but we need to plug in a row number
+		var rowNumber = Math.round(Math.random() * gridModel.grid.length);
+
+		if (gridModel.row_is_safe(rowNumber)) {
+
+			var body = [
+					{row:rowNumber,col:3},
+					{row:rowNumber,col:4},
+					{row:rowNumber,col:5},		
+					{row:rowNumber,col:6},		
+					{row:rowNumber,col:7},		
+					];
+
+			return body;
+		} else {
+			return randomSnake();
+		}
+
+	}
+
+
+	this.randomSnake = randomSnake;
+
+	this.body = randomSnake();
 
 	this.directionsDict = {
 		"Up": {"col": -1, "row":0},
@@ -108,17 +146,6 @@ var SnakeModel = function(canvas, snakeLength){
 		"Left": {"col": 0, "row":-1},
 		"Right": {"col": 0, "row":1}
 	}	
-	
-
-
-
-	this.body = [
-		{row:1,col:3},
-		{row:1,col:4},
-		{row:1,col:5},		
-		{row:1,col:6},		
-		{row:1,col:7},		
-		];
 
 	this.setBodyColideable = function(){
 		var trunk = this.body.slice(1);
@@ -152,8 +179,7 @@ var SnakeModel = function(canvas, snakeLength){
 				// broadcast death to other players
 				// should build a wrapped function to only ws.send when ws.readyState === 1
 				var obit = JSON.stringify({
-					id: browserId,
-					snake: "dead",
+					id: browserId
 				});
 
 				// kill the snake, it hit something it shouldn't
@@ -259,7 +285,8 @@ var SnakeModel = function(canvas, snakeLength){
 			// this is about someone else's snake, and that snake is alive
 			outsideSnakes[update.id] = update.snake;
 
-		} else if (update.snake==="death") {
+		} else if (typeof(update.snake)==="undefined") {
+			// no update was sent, the snake is dead.
 			console.log("snake death: ", update.id);
 			delete outsideSnakes[update.id];
 		}
