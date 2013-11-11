@@ -14,6 +14,15 @@ sockets = Sockets(app)
 
 
 
+@app.route('/game/<channel>')
+def groupgame(channel):
+	resp = render_template('snake.html')
+	return resp
+
+	
+
+
+
 @app.route('/')
 @app.route('/snake')
 def snake():
@@ -21,9 +30,9 @@ def snake():
 	return resp
 
 
-def incoming_snake_update(r, ws):
+def incoming_snake_update(channel, r, ws):
 	client = r.pubsub()
-	client.subscribe("snake_update")
+	client.subscribe(channel)
 	# client.listen is a blocking call
 	for msg in client.listen():
 		# new subscriptions get announced, ignore them for now
@@ -33,12 +42,12 @@ def incoming_snake_update(r, ws):
 		ws.send(msg['data'])
 
 
-def outgoing_snake_update(r, ws):
+def outgoing_snake_update(channel, r, ws):
 	# ws.receive is a blocking call that will return as soon as it gets something
 	message = ws.receive()
 	if message is None:
 		return
-	r.publish("snake_update", message)
+	r.publish(channel, message)
 	gevent.spawn(outgoing_snake_update, r, ws)
 
 
@@ -47,8 +56,8 @@ def snakesocket(ws):
 	r = redis.StrictRedis(host="localhost", port=6379, db=0)
 
 	gevent.joinall([
-		gevent.spawn(incoming_snake_update, r, ws),
-		gevent.spawn(outgoing_snake_update, r, ws)
+		gevent.spawn(incoming_snake_update, channel, r, ws),
+		gevent.spawn(outgoing_snake_update, channel, r, ws)
 		])
 
 

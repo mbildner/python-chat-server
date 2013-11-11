@@ -29,55 +29,55 @@ var GridModel = function(canvas, rows, cols){
 	this.colWidth = colWidth;
 	this.rowHeight = rowHeight;
 
-	var grid = [];
-
-	this.grid = grid;
-
-	for (var row=0; row<rows; row++){
-		var currentRow = [];
-		this.grid.push(currentRow);
-		for (var col=0; col<cols; col++){
-			var box = new GridBox(row, col, colWidth, rowHeight);
-			currentRow.push(box);
-			// currentRow.collideable = (row == ( 0 || rows-1)) ? true : false;
-		}
-	}
+	this.grid = range(rows).map(function (row) {
+		return range(cols).map(function (col) {
+			return new GridBox(row, col, colWidth, rowHeight);
+		})
+	});
 
 
 	this.randomBox = function(){
-		var randBox = {};
-		randBox.collideable = true;
+		var nonCollideables = [];
 
-		while (randBox.collideable){
-			var randRow = Math.floor(Math.random()*this.grid.length);
-			var randCol = Math.floor(Math.random()*this.grid[0].length);
-			var randBox = this.grid[randRow][randCol];
-		}
-		
-		return randBox;
+		this.grid.forEach(function (row) {
+			row.forEach(function (box) {
+				if (!box.collideable) {
+					nonCollideables.push(box);
+				}
+			});
+		});
+
+		return nonCollideables[Math.round(Math.random() * nonCollideables.length)];
 	}
 
 	// Canvas setup code - put it in a this.init function
 
 	// set edges to collideable and render them black
-	// CHANGED CODE WATCH FOR ERROR
-	this.setHardEdges = function () {
-		this.grid[0].forEach(function(box){
-			box.collideable = true;
-			box.render("black");
-		});
-		
-		this.grid[this.grid.length-1].forEach(function(box){
-			box.collideable = true;
-			box.render("black");
-		});
 
-		this.grid.forEach(function(row){
-			row[0].collideable = true;
-			row[row.length-1].collideable = true;
-			row[0].render("black");
-			row[row.length-1].render("black");
-		});		
+
+	this.setHard = function (boxArray) {
+		boxArray.forEach(function (box) {
+			box.collideable = true;
+			box.render("black");
+		});
+	}
+
+
+	this.setHardEdges = function () {
+		var edges = [
+			this.grid[0],
+			this.grid[this.grid.length-1],
+			this.grid.map(function (row) {
+				return row[0];
+			}),
+			this.grid.map(function (row) {
+				return row[row.length-1];
+			})
+
+		];
+
+		edges.forEach(setHard);
+
 	}
 
 	var row_is_safe = function (rowNumber) {
