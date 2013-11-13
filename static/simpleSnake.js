@@ -16,7 +16,6 @@ var GridBox = function(row, col, width, height){
 }
 
 var GridModel = function(canvas, rows, cols){
-
 	this.rows = rows;
 	this.cols = cols;
 
@@ -105,14 +104,9 @@ var GridModel = function(canvas, rows, cols){
 	foodBlock.render("blue");
 
 	this.foodBlock = foodBlock;
-	
 }
 
-
-
-
 var SnakeModel = function(canvas, snakeLength){
-	
 
 	var randomSnake = function () {
 		// for now, body is mostly predefined but we need to plug in a row number
@@ -253,54 +247,63 @@ var SnakeModel = function(canvas, snakeLength){
 	}
 }
 
-;(function(){
-	// get a unique browser ID
-	this.browserId = Math.round(Math.random() * 1000000)
 
-	// wrap up ws init in a function
 
-	var wsEndpoint = "/snakesocket";
 
-	var origin = document.location.origin;
 
-	var wsUrl = "ws" + origin.substring(4) + wsEndpoint;
+var safeSend = function (ws, item) {
+	if (ws.readyState===1) {
+		ws.send(item);
+	} else {
+		console.log("error sending through websocket, readyState: ", ws.readyState);
+	}
+}
 
-	var ws = new WebSocket(wsUrl);
 
-	ws.onmessage = function (m) {
-		var update = m.data;
-		update = JSON.parse(update);
 
-		// ignore our own browser
-		if (update.id != browserId && update.snake) {
-			// this is about someone else's snake, and that snake is alive
-			outsideSnakes[update.id] = update.snake;
 
-		} else if (typeof(update.snake)==="undefined") {
-			// no update was sent, the snake is dead.
-			delete outsideSnakes[update.id];
-		}
+window.browserId = Math.round(Math.random() * 1000000)
+
+var wsEndpoint = "/snakesocket";
+
+var origin = document.location.origin;
+var wsUrl = "ws" + origin.substring(4) + wsEndpoint;
+
+var ws = new WebSocket(wsUrl);
+
+ws.addEventListener('message', function (m) {
+	var update = m.data;
+	update = JSON.parse(update);
+
+	// ignore our own browser
+	if (update.id != browserId && update.snake) {
+		// this is about someone else's snake, and that snake is alive
+		outsideSnakes[update.id] = update.snake;
+
+	} else if (typeof(update.snake)==="undefined") {
+		// no update was sent, the snake is dead.
+		delete outsideSnakes[update.id];
 	}
 
-	this.ws = ws;
+});
 
 
-	this.canvas = document.getElementById('snakeGameCanvas');
-	this.canvas.backgroundColor = "white";
-	this.context = canvas.getContext('2d');
-	this.gridModel = new GridModel(canvas, 40, 40);	
+var canvas = document.getElementById('snakeGameCanvas');
+var canvas.backgroundColor = "white";
+var context = canvas.getContext('2d');
+var gridModel = new GridModel(canvas, 40, 40);	
 
-	this.gridModel.setHardEdges();
+var gridModel.setHardEdges();
 
-	this.snake = new SnakeModel(canvas, 10);
+var snake = new SnakeModel(canvas, 10);
 	
 
-	var keyDict = {
-		37 : "Left",
-		38 : "Up",
-		39 : "Right",
-		40 : "Down"
-	}
+var keyDict = {
+	37 : "Left",
+	38 : "Up",
+	39 : "Right",
+	40 : "Down"
+}
 
 	document.addEventListener("keydown", function(keyPress){
 
