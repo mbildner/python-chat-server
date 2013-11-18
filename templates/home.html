@@ -1,82 +1,83 @@
-<!DOCTYPE html>
-
-
 <html>
 <head>
-	<title>Welcome Home</title>
+	<title>PyChat</title>
 </head>
+	<p>Say something:</p>
+	<input id="messageInput"></input>
+
+
+	<h2>{{ g.userid }}</h2>
+	<ul id="online">
+
+	</ul>
+
+	<p>Incoming Messages:</p>
+	<textarea id="incomingMessages"></textarea>
+
 <body>
-	<h1>Chat Server Home</h1>
-
-	<p>Pick a username (just characters please)</p>
-	<input type="text" id="username"></input>
-	<button id="callButton">Connect to server</button>
-
-	<p>Send a message:</p>
-	<input type="text" id="sendMessageInput"></input>
-	<button id="sendMessageButton">Send</button>
-
-
-	<p>Responses from server:</p>
-	<textarea id="responses"></textarea>
-
-
 	<script type="text/javascript">
+		var onlineusers = [];
 
-	var username = document.querySelector("#username");
+		var userid = "{{ g.userid }}";
 
-	var responses = document.querySelector("#responses");
+		var onlineList = document.getElementById('online');
 
-	var callButton = document.querySelector("#callButton");
+		function registerUser (username) {
+			var li = document.createElement('li');
+			var button = document.createElement('button');
 
-	var sendMessageButton = document.querySelector("#sendMessageButton");
-	sendMessageButton.disabled = true;
+			button.innerHTML = username;
 
-	var sendMessageInput = document.querySelector("#sendMessageInput");
-	sendMessageInput.disabled = true;
+			button.onclick = function () {
+				var messageInput = document.getElementById('messageInput');
+				var message = messageInput.value;
 
-
-
-	sendMessageButton.onclick = function (){
-		var message = sendMessageInput.value;
-		ws.send(message);
-	}
-
+				ws.send(JSON.stringify({
+					'target': this.innerHTML,
+					'payload': message
+				}));
+			}
 
 
-	function connectToServer () {
-		window.ws = new WebSocket('ws://localhost:8000/chatsocket/' + username.value);
-		callButton.disabled = true;
-		username.disabled = true
+			li.appendChild(button);
+			onlineList.appendChild(li);
+		}
+
+		var wsurl = "ws://localhost:8000/websocket/" + userid;
+
+		ws = new WebSocket(wsurl);
 
 		ws.onmessage = function (m) {
-			var message = m.data;
-			responses.value += "\n" + message;
+			var message = JSON.parse(m.data);
+
+			var serverorders = message.serverorders;
+
+			if (serverorders==="newusers") {
+
+			while (onlineList.children.length > 0) {
+				onlineList.removeChild(onlineList.children[0]);
+				}
+
+				message.newusers.forEach(function (user) {
+					registerUser(user);
+				});
+
+			} else {
+				var message = message.payload;
+				console.log(message);
+				var incomingMessages = document.getElementById('incomingMessages');
+				incomingMessages.value = message + '\n' + incomingMessages.value;
+
+			}
+
 		}
 
 		ws.onopen = function () {
-			sendMessageInput.disabled = false;
-			sendMessageButton.disabled = false;
-
+			// 
 		}
-
-	}
-
-	callButton.onclick = function () {
-		connectToServer();
-	}
-
-
-	// var chatStates = {};
-
-	// var chatStateTransitions = {
-	// 	'connect_to_server' : connectToServer,
-	// 	'disconnect_from_server': disconnectFromServer
-	// };
 
 
 
 	</script>
-
 </body>
 </html>
