@@ -248,9 +248,6 @@ var SnakeModel = function(canvas, snakeLength){
 }
 
 
-
-
-
 var safeSend = function (ws, item) {
 	if (ws.readyState===1) {
 		ws.send(item);
@@ -260,16 +257,19 @@ var safeSend = function (ws, item) {
 }
 
 
+var createWebSocket = function (endpoint) {
+	// var wsEndpoint = "/snakesocket";
+	var wsEndpoint = endpoint;
+	var origin = document.location.origin;
+	var wsUrl = "ws" + origin.substring(4) + wsEndpoint;
+	var ws = new WebSocket(wsUrl);
+	return ws;	
+}
 
 
 window.browserId = Math.round(Math.random() * 1000000)
 
-var wsEndpoint = "/snakesocket";
-
-var origin = document.location.origin;
-var wsUrl = "ws" + origin.substring(4) + wsEndpoint;
-
-var ws = new WebSocket(wsUrl);
+var ws = createWebSocket('/snakesocket');
 
 ws.addEventListener('message', function (m) {
 	var update = m.data;

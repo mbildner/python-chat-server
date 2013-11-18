@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+
+<html>
+<head>
+	<title>Welcome Home</title>
+</head>
+<body>
+	<h1>Chat Server Home</h1>
+
+	<p>Pick a username (just characters please)</p>
+	<input type="text" id="username"></input>
+	<button id="callButton">Connect to server</button>
+
+	<p>Send a message:</p>
+	<input type="text" id="sendMessageInput"></input>
+	<button id="sendMessageButton">Send</button>
+
+
+	<p>Responses from server:</p>
+	<textarea id="responses"></textarea>
+
+
+	<script type="text/javascript">
+
+	var username = document.querySelector("#username");
+
+	var responses = document.querySelector("#responses");
+
+	var callButton = document.querySelector("#callButton");
+
+	var sendMessageButton = document.querySelector("#sendMessageButton");
+	sendMessageButton.disabled = true;
+
+	var sendMessageInput = document.querySelector("#sendMessageInput");
+	sendMessageInput.disabled = true;
+
+
+
+	sendMessageButton.onclick = function (){
+		var message = sendMessageInput.value;
+		ws.send(message);
+	}
+
+
+
+	function connectToServer () {
+		window.ws = new WebSocket('ws://localhost:8000/chatsocket/' + username.value);
+		callButton.disabled = true;
+		username.disabled = true
+
+		ws.onmessage = function (m) {
+			var message = m.data;
+			responses.value += "\n" + message;
+		}
+
+		ws.onopen = function () {
+			sendMessageInput.disabled = false;
+			sendMessageButton.disabled = false;
+
+		}
+
+	}
+
+	callButton.onclick = function () {
+		connectToServer();
+	}
+
+
+	// var chatStates = {};
+
+	// var chatStateTransitions = {
+	// 	'connect_to_server' : connectToServer,
+	// 	'disconnect_from_server': disconnectFromServer
+	// };
+
+
+
+	</script>
+
+</body>
+</html>
